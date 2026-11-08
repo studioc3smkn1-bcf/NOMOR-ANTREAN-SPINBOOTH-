@@ -1,0 +1,21 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kasir - Spinbooth</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="common.js"></script></head><body>
+<h1>Panel Kasir</h1>
+<div class="card"><select id="l" style="font:inherit;padding:10px;width:100%"></select><br><br><input id="pin" type="password" placeholder="PIN kasir" inputmode="numeric"></div>
+<button class="y" id="mk" onclick="act()">Buat Nomor Antrian</button>
+<div class="card" id="tk" style="text-align:center;display:none"></div>
+<div id="wait" style="text-align:center"></div><div id="msg"></div>
+<script>
+const sel=document.getElementById("l"),$=id=>document.getElementById(id);
+LETTERS.forEach(l=>sel.add(new Option("Kasir "+l,l)));sel.value=localStorage.getItem("kasir")||"A";$("pin").value=localStorage.getItem("pin")||"";
+sel.onchange=()=>localStorage.setItem("kasir",sel.value);
+async function load(){const q=()=>sb.from("tickets").select("id",{count:"exact",head:true}).eq("queue_date",today());
+ const {count}=await q().eq("status","waiting");$("wait").textContent="Menunggu: "+(count||0);const a=await isActive();$("mk").disabled=!a;if(!a)$("msg").textContent="Antrian sedang nonaktif"}
+async function act(){const fn="take_ticket";localStorage.setItem("pin",$("pin").value);$("msg").textContent="";
+ const {data,error}=await sb.rpc(fn,{p_letter:sel.value,p_pin:$("pin").value});
+ if(error){$("msg").textContent=error.message;return}
+ if(fn==="take_ticket"){const {count}=await sb.from("tickets").select("id",{count:"exact",head:true}).eq("queue_date",data.queue_date).eq("status","waiting").lt("id",data.id);
+  $("tk").style.display="block";$("tk").innerHTML='<div>Nomor antrian Anda (silakan difoto)</div><div class="big">'+fmt(data)+'</div><div>'+new Date(data.created_at).toLocaleString("id-ID")+'</div><div>Antrian di depan: '+count+'</div>'}
+load()}
+sb.channel("k").on("postgres_changes",{event:"*",schema:"public",table:"tickets"},load).on("postgres_changes",{event:"*",schema:"public",table:"settings"},load).subscribe();setInterval(load,10000);load();
+</script></body></html>
