@@ -1,0 +1,12 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Spinbooth</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="common.js"></script></head><body>
+<h1>Pengaturan Antrian</h1><div class="card"><input id="pin" type="password" placeholder="PIN pemilik" inputmode="numeric"></div>
+<div class="card" style="text-align:center"><div>Status sistem antrian</div><div class="big" id="st">-</div></div>
+<button class="y" onclick="setA(true)">Aktifkan Antrian (Event Dimulai)</button><button onclick="setA(false)">Nonaktifkan Antrian</button><div id="msg"></div>
+<script>
+const $=id=>document.getElementById(id);$("pin").value=localStorage.getItem("apin")||"";
+async function load(){$("st").textContent=(await isActive())?"AKTIF":"NONAKTIF"}
+async function setA(v){localStorage.setItem("apin",$("pin").value);$("msg").textContent="";
+ const {error}=await sb.rpc("set_active",{p_pin:$("pin").value,p_active:v});if(error)$("msg").textContent=error.message;load()}
+sb.channel("a").on("postgres_changes",{event:"*",schema:"public",table:"settings"},load).subscribe();load();
+</script></body></html>
