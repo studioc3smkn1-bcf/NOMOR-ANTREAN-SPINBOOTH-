@@ -1,6 +1,6 @@
 // ISI DARI SUPABASE: Project Settings > API
-const SUPABASE_URL = "https://XXXX.supabase.co";
-const SUPABASE_KEY = "ISI_ANON_PUBLIC_KEY";
+const SUPABASE_URL = "https://xceivffzchxhqcwoexbj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dmFTSY8Kf-hhsVNCHl4DWA_D4HyoYit";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const LETTERS = ["A","B","C","D","E"];
 const fmt = t => t.letter + "-" + String(t.num).padStart(3,"0");
